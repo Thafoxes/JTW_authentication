@@ -1,5 +1,26 @@
 <script setup>
-import { RouterLink } from 'vue-router'
+import { ref, watch } from 'vue'
+import { RouterLink, useRouter, useRoute } from 'vue-router'
+
+const router = useRouter()
+const route = useRoute()
+const isLoggedIn = ref(false)
+
+const checkLoginStatus = () => {
+  isLoggedIn.value = !!localStorage.getItem('jwt_token')
+}
+
+// Re-check authentication status on every route navigation
+watch(() => route.path, () => {
+  checkLoginStatus()
+}, { immediate: true })
+
+const logout = () => {
+  localStorage.removeItem('jwt_token')
+  localStorage.removeItem('user')
+  isLoggedIn.value = false
+  router.push('/login')
+}
 </script>
 
 <template>
@@ -12,7 +33,10 @@ import { RouterLink } from 'vue-router'
       
       <nav class="navigation">
         <RouterLink to="/" class="nav-link" active-class="active">HOME</RouterLink>
-        <RouterLink to="/login" class="nav-link" active-class="active">LOGIN</RouterLink>
+        <RouterLink v-if="isLoggedIn" to="/dashboard" class="nav-link" active-class="active">DASHBOARD</RouterLink>
+        <RouterLink v-if="!isLoggedIn" to="/login" class="nav-link" active-class="active">LOGIN</RouterLink>
+        <RouterLink v-if="!isLoggedIn" to="/signup" class="nav-link" active-class="active">SIGN UP</RouterLink>
+        <button v-if="isLoggedIn" @click="logout" class="nav-link btn-logout">LOGOUT</button>
       </nav>
     </div>
   </header>
@@ -93,6 +117,13 @@ import { RouterLink } from 'vue-router'
   background-color: #d2fc00;
   border-color: #d2fc00;
   box-shadow: 0 0 12px rgba(210, 252, 0, 0.3);
+}
+
+.btn-logout {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
 }
 
 @media (max-width: 640px) {
