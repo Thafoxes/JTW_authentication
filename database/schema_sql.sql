@@ -19,6 +19,21 @@
 CREATE DATABASE IF NOT EXISTS `jwt_dbms` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
 USE `jwt_dbms`;
 
+-- Dumping structure for procedure jwt_dbms.update_user
+DELIMITER //
+CREATE PROCEDURE `update_user`(
+	IN `username` VARCHAR(255),
+	IN `updated_email` VARCHAR(255),
+	IN `member_valid_updated` TINYINT,
+	IN `member_updated_role` ENUM('member','admin','VIP','blacklisted'),
+	IN `user_id` INT
+)
+    DETERMINISTIC
+BEGIN
+UPDATE `user` SET `username` = username, email = updated_email, member_valid = member_valid_updated, `ROLE` = member_updated_role WHERE `user_id` = user_id ;
+END//
+DELIMITER ;
+
 -- Dumping structure for table jwt_dbms.user
 CREATE TABLE IF NOT EXISTS `user` (
   `user_id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -29,7 +44,7 @@ CREATE TABLE IF NOT EXISTS `user` (
   `ROLE` enum('member','admin','VIP','blacklisted') CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'member',
   `password_hash` varchar(255) NOT NULL,
   PRIMARY KEY (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Data exporting was unselected.
 

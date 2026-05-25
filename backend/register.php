@@ -6,7 +6,7 @@ require_once __DIR__ . '/config/database.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
-// Only allow POST requests
+// only allow POST requests
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     echo json_encode(["success" => false, "message" => "Method Not Allowed. Only POST is supported."]);
@@ -21,7 +21,7 @@ $username = isset($input['username']) ? trim($input['username']) : '';
 $email = isset($input['email']) ? trim($input['email']) : '';
 $password = isset($input['password']) ? $input['password'] : '';
 
-// Validation
+// validation
 if (empty($username) || empty($email) || empty($password)) {
     http_response_code(400);
     echo json_encode(["success" => false, "message" => "Please fill in all fields (username, email, password)."]);
@@ -44,7 +44,7 @@ if (strlen($username) < 3) {
 try {
     $db = Database::getConnection();
     
-    // Check if email already exists
+    // check if email already exists
     $stmt = $db->prepare("SELECT user_id FROM user WHERE email = ? LIMIT 1");
     $stmt->execute([$email]);
     if ($stmt->fetch()) {
@@ -53,23 +53,23 @@ try {
         exit();
     }
 
-    // Check if username already exists
+    // check if username already exists
     $stmt = $db->prepare("SELECT user_id FROM user WHERE username = ? LIMIT 1");
     $stmt->execute([$username]);
     if ($stmt->fetch()) {
-        http_response_code(409); // Conflict
+        http_response_code(409); // conflict
         echo json_encode(["success" => false, "message" => "Username is already taken."]);
         exit();
     }
 
-    // Hash the password
+    // hash the password
     $passwordHash = password_hash($password, PASSWORD_BCRYPT);
     
-    // Insert new user
+    // insert new user
     $stmt = $db->prepare("INSERT INTO user (username, email, password_hash, ROLE, member_valid) VALUES (?, ?, ?, 'member', 1)");
     $stmt->execute([$username, $email, $passwordHash]);
     
-    http_response_code(201); // Created
+    http_response_code(201); // created
     echo json_encode([
         "success" => true,
         "message" => "Account created successfully! You can now log in."

@@ -1,7 +1,7 @@
 <?php
 // backend/config/database.php
-
-define('DB_HOST', '127.0.0.1');
+// Configure the database information here 
+define('DB_HOST', 'localhost');
 define('DB_PORT', '3306');
 define('DB_USER', 'root');
 define('DB_PASS', '');
@@ -17,8 +17,8 @@ class Database {
         }
 
         try {
-            // Connect to MySQL server first (without database) to ensure database and table exist
-            $dsn = "mysql:host=" . DB_HOST . ";port=" . DB_PORT . ";charset=utf8mb4";
+            // Connect directly to the database
+            $dsn = "mysql:host=" . DB_HOST . ";port=" . DB_PORT . ";dbname=" . DB_NAME . ";charset=utf8mb4";
             $options = [
                 PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
@@ -27,11 +27,8 @@ class Database {
             
             $tempPdo = new PDO($dsn, DB_USER, DB_PASS, $options);
             
-            // Throw error database if not exists
-            if(!tempPdo){
-                throw new PDOException("Failed to instantiate the PDO connection instance.");
-            }
-           
+            self::$pdo = $tempPdo;
+            return self::$pdo;
             
         } catch (PDOException $e) {
             // Return JSON response if database connection fails
