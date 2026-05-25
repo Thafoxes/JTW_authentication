@@ -27,29 +27,11 @@ class Database {
             
             $tempPdo = new PDO($dsn, DB_USER, DB_PASS, $options);
             
-            // Create database if not exists
-            $tempPdo->exec("CREATE DATABASE IF NOT EXISTS `" . DB_NAME . "` CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci");
-            $tempPdo->exec("USE `" . DB_NAME . "`");
-            
-            // Create user table if not exists
-            $tableSql = "
-                CREATE TABLE IF NOT EXISTS `user` (
-                  `user_id` int unsigned NOT NULL AUTO_INCREMENT,
-                  `username` varchar(255) NOT NULL DEFAULT '',
-                  `email` varchar(255) NOT NULL DEFAULT '',
-                  `member_valid` tinyint NOT NULL DEFAULT (0),
-                  `date_joined` datetime NOT NULL DEFAULT (CURRENT_TIMESTAMP),
-                  `ROLE` enum('member','admin','VIP','blacklisted') NOT NULL DEFAULT 'member',
-                  `password_hash` varchar(255) NOT NULL,
-                  PRIMARY KEY (`user_id`),
-                  UNIQUE KEY `idx_email` (`email`),
-                  UNIQUE KEY `idx_username` (`username`)
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-            ";
-            $tempPdo->exec($tableSql);
-            
-            self::$pdo = $tempPdo;
-            return self::$pdo;
+            // Throw error database if not exists
+            if(!tempPdo){
+                throw new PDOException("Failed to instantiate the PDO connection instance.");
+            }
+           
             
         } catch (PDOException $e) {
             // Return JSON response if database connection fails

@@ -3,7 +3,6 @@
 This is a self-contained, lightweight PHP backend for JWT (JSON Web Token) authentication, designed to run in Laragon and serve a Vue.js frontend.
 
 ## Features
-- **Database Self-Healing**: Automatically creates the database `jwt_dbms` and table `user` if they do not exist on the MySQL server.
 - **Pure PHP JWT Helper**: Signs, encodes, and validates JWT payloads with HMAC-SHA256 and expiration support.
 - **Security Protocols**: Safe password storing with BCRYPT hashing, input sanitization, dynamic CORS handling, and token authentication.
 
