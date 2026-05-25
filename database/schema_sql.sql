@@ -30,7 +30,7 @@ CREATE PROCEDURE `update_user`(
 )
     DETERMINISTIC
 BEGIN
-UPDATE `user` SET `username` = username, email = updated_email, member_valid = member_valid_updated, `ROLE` = member_updated_role WHERE `user_id` = user_id ;
+UPDATE `user` SET `username` = username, email = updated_email, member_valid = member_valid_updated, `role` = member_updated_role WHERE `user_id` = user_id ;
 END//
 DELIMITER ;
 
@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS `user` (
   `email` varchar(255) NOT NULL DEFAULT '',
   `member_valid` tinyint NOT NULL DEFAULT (0),
   `date_joined` datetime NOT NULL DEFAULT (curdate()),
-  `ROLE` enum('member','admin','VIP','blacklisted') CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'member',
+  `role` enum('member','admin','VIP','blacklisted') CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'member',
   `password_hash` varchar(255) NOT NULL,
   PRIMARY KEY (`user_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
