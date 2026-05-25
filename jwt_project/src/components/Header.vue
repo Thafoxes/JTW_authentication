@@ -5,9 +5,21 @@ import { RouterLink, useRouter, useRoute } from 'vue-router'
 const router = useRouter()
 const route = useRoute()
 const isLoggedIn = ref(false)
+const currentUser = ref(null)
 
 const checkLoginStatus = () => {
+  // the !! means convert anything that is not null to true, else false so that if I have the token, it sets isLoggedIn to true
   isLoggedIn.value = !!localStorage.getItem('jwt_token')
+  if(isLoggedIn.value){
+    try{
+      currentUser.value = JSON.parse(localStorage.getItem('user'))
+    } catch(err){
+      console.error(err)
+      currentUser.value = null
+    }
+  }else{
+    currentUser.value = null
+  }
 }
 
 // Re-check authentication status on every route navigation
@@ -19,6 +31,7 @@ const logout = () => {
   localStorage.removeItem('jwt_token')
   localStorage.removeItem('user')
   isLoggedIn.value = false
+  currentUser.value = null
   router.push('/login')
 }
 </script>
@@ -30,7 +43,9 @@ const logout = () => {
         <span class="logo-icon">67</span>
         <h1 class="logo-text">ANYTIME<span class="accent-text">GYM</span></h1>
       </div>
-      
+      <p v-if="isLoggedIn && currentUser" class="membership-info">
+        Membership: <span class="role-badge">{{ currentUser.role }}</span>
+      </p>
       <nav class="navigation">
         <RouterLink to="/" class="nav-link" active-class="active">HOME</RouterLink>
         <RouterLink v-if="isLoggedIn" to="/dashboard" class="nav-link" active-class="active">DASHBOARD</RouterLink>
@@ -124,6 +139,24 @@ const logout = () => {
   border: none;
   cursor: pointer;
   font-family: inherit;
+}
+
+.membership-info {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #a0a0a5;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0;
+}
+
+.role-badge {
+  background-color: rgba(210, 252, 0, 0.1);
+  color: #d2fc00;
+  border: 1px solid rgba(210, 252, 0, 0.3);
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+  margin-left: 0.25rem;
 }
 
 @media (max-width: 640px) {
