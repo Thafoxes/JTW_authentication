@@ -62,7 +62,7 @@ enum Membership: string {
 
 ---
 
-## 🌐 API Endpoint Catalog
+## API Endpoint Catalog
 
 ### 1. Register Account
 * **URL**: `/backend/register.php`
