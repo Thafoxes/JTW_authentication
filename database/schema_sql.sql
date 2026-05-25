@@ -26,7 +26,8 @@ CREATE TABLE IF NOT EXISTS `user` (
   `email` varchar(255) NOT NULL DEFAULT '',
   `member_valid` tinyint NOT NULL DEFAULT (0),
   `date_joined` datetime NOT NULL DEFAULT (curdate()),
-  `ROLE` enum('member','admin','VIP','blacklisted') DEFAULT 'member',
+  `ROLE` enum('member','admin','VIP','blacklisted') CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'member',
+  `password_hash` varchar(255) NOT NULL,
   PRIMARY KEY (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
