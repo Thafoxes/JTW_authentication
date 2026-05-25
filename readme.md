@@ -168,6 +168,7 @@ enum Membership: string {
 
 ## Frontend Design System
 
+![alt text](<readme_media/Screenshot 2026-05-26 013627.png>)
 ### 1. Typography and Font
 The application integrates the **Outfit** font family from Google Fonts. It is configured globally to establish a premium and clean aesthetic suited for a fitness brand. Weight specifications include:
 - Regular (400): Standard labels, descriptions, and regular text inputs.
