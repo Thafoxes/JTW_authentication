@@ -163,3 +163,25 @@ enum Membership: string {
 | **Cross-Origin Security** | Dynamic reflection header validation in [cors.php](source/JTW_authentication/backend/helpers/cors.php) | Restricts non-whitelisted cross-site scripting attacks, responds to `OPTIONS` preflight requests. |
 | **Database Protection** | Parameterized bindings (Prepared Statements) | Eradicates SQL injection possibilities entirely. |
 | **Privilege Escalation Guard** | Strict role assertions before running `CALL update_user()` | Prevents users from upgrading their roles or statuses without authorization. |
+
+---
+
+## Frontend Design System
+
+### 1. Typography and Font
+The application integrates the **Outfit** font family from Google Fonts. It is configured globally to establish a premium and clean aesthetic suited for a fitness brand. Weight specifications include:
+- Regular (400): Standard labels, descriptions, and regular text inputs.
+- Bold (700): Navigation links, button actions, and input titles.
+- Black (900): Core headings, page headers, logo branding, and badge details.
+
+### 2. Color Palette and Theme
+The layout employs a high-contrast dark theme centered around fitness and gym aesthetics:
+- **Base Background**: Deep dark solid carbon tone (#0B0B0C) and card backgrounds (#111113).
+- **Secondary Accents**: Charcoal tones (#1A1A1E and #2D2D32) used for borders, inputs, and structure elements.
+- **Neon Volt Accent**: High-intensity volt accent color (#D2FC00) designed for interactive states, call-to-actions, active links, and brand highlights.
+- **Alert Tones**: Crimson red (#FF3B30) for warning validations, input validation errors, and invalid border styling.
+
+### 3. Layout Architecture
+- **Responsive Flex Containers**: Layout elements align vertically using flex models with clean padding and margin standards.
+- **Micro-interactions**: Links and buttons utilize transition transforms and shadows to deliver modern feed-back behaviors when clicked or hovered over.
+
