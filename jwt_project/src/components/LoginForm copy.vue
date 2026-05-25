@@ -14,41 +14,41 @@ const errors = ref({
   general: ''
 })
 
-const handleLogin = async() => {
-  errors.value.email = ""
-  errors.value.password = ""
-  errors.value.general = ""
+const handleLogin = async () => {
+  // Reset errors
+  errors.value.email = ''
+  errors.value.password = ''
+  errors.value.general = ''
 
   let hasError = false
 
-  if(!email.value){
-     errors.value.email = 'Email is required'
-     hasError = true
-  }
-  if(!/\S+@\S+\.\S+/.test(email.value)){
-    errors.value.email = 'Please enter an valid email address'
-     hasError = true
+  if (!email.value) {
+    errors.value.email = 'Email is required'
+    hasError = true
+  } else if (!/\S+@\S+\.\S+/.test(email.value)) {
+    errors.value.email = 'Please enter a valid email address'
+    hasError = true
   }
 
-  if(!password.value){
-    errors.value.password = 'password is required'
+  if (!password.value) {
+    errors.value.password = 'Password is required'
     hasError = true
   }
 
   if (hasError) return
 
-  isLoading.value = true;
+  isLoading.value = true
 
-  try{
-
-     const hostname = window.location.hostname;
+  try {
+    // Dynamic URL detection supporting standard Laragon paths
+    const hostname = window.location.hostname;
     const backendUrl = hostname === 'localhost' 
       ? 'http://localhost/JTW_authentication/backend/login.php'
       : '/backend/login.php';
 
     const response = await fetch(backendUrl, {
       method: 'POST',
-      headers:{
+      headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
@@ -59,24 +59,21 @@ const handleLogin = async() => {
 
     const data = await response.json()
 
-    if(response.ok && data.success){
-      console.log("Login successful!")
-      console.log(data)
-      // checking json data response
-      
-      localStorage.setItem('jwt_token',data.token)
+    if (response.ok && data.success) {
+      // Store token and user data in localStorage
+      localStorage.setItem('jwt_token', data.token)
       localStorage.setItem('user', JSON.stringify(data.user))
-
-      router.push('/dashboard')
       
-    }else{
+      // Redirect to home page
+      router.push('/')
+    } else {
       errors.value.general = data.message || 'Login failed. Please try again.'
     }
-  }catch(err){
-    errors.value.general = 'Cannot connect to server.'
+  } catch (err) {
+    errors.value.general = 'Cannot connect to backend server. Verify Laragon is running.'
     console.error(err)
-  }finally{
-    isLoading.value = false;
+  } finally {
+    isLoading.value = false
   }
 }
 </script>
@@ -91,7 +88,7 @@ const handleLogin = async() => {
       </div>
 
       <form @submit.prevent="handleLogin" class="login-form">
-
+        <!-- General Server Errors -->
         <div v-if="errors.general" class="alert alert-error">
           {{ errors.general }}
         </div>
@@ -122,7 +119,7 @@ const handleLogin = async() => {
 
         <button type="submit" class="btn-submit" :disabled="isLoading">
           <span v-if="isLoading">AUTHENTICATING...</span>
-          <span v-else>LOGIN (JWT AUTHENTICATION)</span>
+          <span v-else>START WORKOUT (LOG IN)</span>
         </button>
       </form>
     </div>
