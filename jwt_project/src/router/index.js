@@ -15,15 +15,64 @@ const router = createRouter({
       component: () => import('../views/LoginView.vue'),
     },
     {
+      path: '/signup',
+      name: 'signup',
+      component: () => import('../views/SignupView.vue'),
+    },
+    {
       path: '/dashboard',
-      name: 'dashboard',
-      component: () => import('../views/DashboardView.vue'),
+      redirect: () => {
+        const userJson = localStorage.getItem('user')
+        if (!userJson) {
+          return '/login'
+        }
+        try {
+          const user = JSON.parse(userJson)
+          return user.role === 'admin' ? '/dashboard/admin' : '/dashboard/member'
+        } catch {
+          return '/login'
+        }
+      }
+    },
+    {
+      path: '/dashboard/member',
+      name: 'member-dashboard',
+      component: () => import('../views/MemberDashboardView.vue'),
       beforeEnter: (to, from, next) => {
         const token = localStorage.getItem('jwt_token')
-        if (token) {
-          next()
-        } else {
-          next('/login')
+        const userJson = localStorage.getItem('user')
+        if (!token || !userJson) {
+          return next('/login')
+        }
+        try {
+          const user = JSON.parse(userJson)
+          if (user.role !== 'member') {
+            return next('/dashboard')
+          }
+          return next()
+        } catch {
+          return next('/login')
+        }
+      }
+    },
+    {
+      path: '/dashboard/admin',
+      name: 'admin-dashboard',
+      component: () => import('../views/AdminDashboardView.vue'),
+      beforeEnter: (to, from, next) => {
+        const token = localStorage.getItem('jwt_token')
+        const userJson = localStorage.getItem('user')
+        if (!token || !userJson) {
+          return next('/login')
+        }
+        try {
+          const user = JSON.parse(userJson)
+          if (user.role !== 'admin') {
+            return next('/dashboard')
+          }
+          return next()
+        } catch {
+          return next('/login')
         }
       }
     }

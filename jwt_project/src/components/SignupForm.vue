@@ -3,50 +3,76 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { backendBaseUrl } from '../utils/api.js'
 
+// router helper to navigate after signup success
 const router = useRouter()
 
+// local form state managed with v-model in the template
+const username = ref('')
 const email = ref('')
 const password = ref('')
+const confirmPassword = ref('')
 const isLoading = ref(false)
 
+// object used to show inline validation errors and general server errors
 const errors = ref({
+  username: '',
   email: '',
   password: '',
+  confirmPassword: '',
   general: ''
 })
 
-const handleLogin = async() => {
-  errors.value.email = ""
-  errors.value.password = ""
-  errors.value.general = ""
+// submit handler for the signup form
+const handleSignUp = async () => {
+  errors.value.username = ''
+  errors.value.email = ''
+  errors.value.password = ''
+  errors.value.confirmPassword = ''
+  errors.value.general = ''
 
   let hasError = false
 
-  if(!email.value){
-     errors.value.email = 'Email is required'
-     hasError = true
-  }
-  if(!/\S+@\S+\.\S+/.test(email.value)){
-    errors.value.email = 'Please enter an valid email address'
-     hasError = true
-  }
-
-  if(!password.value){
-    errors.value.password = 'password is required'
+  if (!username.value) {
+    errors.value.username = 'Username is required'
     hasError = true
   }
 
+  if (!email.value) {
+    errors.value.email = 'Email is required'
+    hasError = true
+  } else if (!/\S+@\S+\.\S+/.test(email.value)) {
+    errors.value.email = 'Please enter a valid email address'
+    hasError = true
+  }
+
+  // password length validation ensures basic security before submission
+  if (!password.value) {
+    errors.value.password = 'Password is required'
+    hasError = true
+  } else if (password.value.length < 6) {
+    errors.value.password = 'Password must be at least 6 characters'
+    hasError = true
+  }
+
+  if (confirmPassword.value !== password.value) {
+    errors.value.confirmPassword = 'Passwords do not match'
+    hasError = true
+  }
+
+  // stop form submit if any validation error exists
   if (hasError) return
 
-  isLoading.value = true;
+  isLoading.value = true
 
   try {
-    const response = await fetch(`${backendBaseUrl}/login.php`, {
+    // send the signup payload as JSON to the backend register endpoint
+    const response = await fetch(`${backendBaseUrl}/register.php`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
+        username: username.value,
         email: email.value,
         password: password.value
       })
@@ -55,26 +81,15 @@ const handleLogin = async() => {
     const data = await response.json()
 
     if (response.ok && data.success) {
-      console.log('Login successful!')
-      console.log(data)
-
-      localStorage.setItem('jwt_token', data.token)
-      localStorage.setItem('user', JSON.stringify(data.user))
-
-      if (data.user.role === 'admin') {
-        router.push('/dashboard/admin')
-      } else {
-        router.push('/dashboard/member')
-      }
+      router.push('/login')
     } else {
-      errors.value.general = data.message || 'Login failed. Please try again.'
-      console.error('Login failed:', data)
+      errors.value.general = data.message || 'Registration failed. Please try again.'
     }
-  }catch(err){
+  } catch (err) {
     errors.value.general = 'Cannot connect to server.'
     console.error(err)
-  }finally{
-    isLoading.value = false;
+  } finally {
+    isLoading.value = false
   }
 }
 </script>
@@ -84,22 +99,32 @@ const handleLogin = async() => {
     <div class="login-card">
       <div class="card-header">
         <span class="card-icon">67</span>
-        <h2>MEMBER SIGN IN</h2>
-        <p>Enter your training credentials</p>
+        <h2>MEMBER SIGN UP</h2>
+        <p>Create your gym account to access the dashboard</p>
       </div>
 
-      <form @submit.prevent="handleLogin" class="login-form">
-
+      <form @submit.prevent="handleSignUp" class="login-form">
         <div v-if="errors.general" class="alert alert-error">
           {{ errors.general }}
         </div>
 
         <div class="form-group">
+          <label for="username">USERNAME</label>
+          <input
+            id="username"
+            v-model="username"
+            placeholder="Your username"
+            :class="{ 'input-error': errors.username }"
+          />
+          <span v-if="errors.username" class="error-text">{{ errors.username }}</span>
+        </div>
+
+        <div class="form-group">
           <label for="email">EMAIL ADDRESS</label>
-          <input 
-            type="email" 
-            id="email" 
-            v-model="email" 
+          <input
+            type="email"
+            id="email"
+            v-model="email"
             placeholder="name@example.com"
             :class="{ 'input-error': errors.email }"
           />
@@ -108,19 +133,31 @@ const handleLogin = async() => {
 
         <div class="form-group">
           <label for="password">PASSWORD</label>
-          <input 
-            type="password" 
-            id="password" 
-            v-model="password" 
+          <input
+            type="password"
+            id="password"
+            v-model="password"
             placeholder="••••••••"
             :class="{ 'input-error': errors.password }"
           />
           <span v-if="errors.password" class="error-text">{{ errors.password }}</span>
         </div>
 
+        <div class="form-group">
+          <label for="confirmPassword">CONFIRM PASSWORD</label>
+          <input
+            type="password"
+            id="confirmPassword"
+            v-model="confirmPassword"
+            placeholder="••••••••"
+            :class="{ 'input-error': errors.confirmPassword }"
+          />
+          <span v-if="errors.confirmPassword" class="error-text">{{ errors.confirmPassword }}</span>
+        </div>
+
         <button type="submit" class="btn-submit" :disabled="isLoading">
-          <span v-if="isLoading">AUTHENTICATING...</span>
-          <span v-else>LOGIN (JWT AUTHENTICATION)</span>
+          <span v-if="isLoading">CREATING ACCOUNT...</span>
+          <span v-else>CREATE ACCOUNT</span>
         </button>
       </form>
     </div>
@@ -216,48 +253,43 @@ const handleLogin = async() => {
   border-color: #ff3b30;
 }
 
-.error-text {
-  color: #ff3b30;
-  font-size: 0.75rem;
-  font-weight: 700;
-}
-
 .alert {
-  padding: 0.75rem 1rem;
-  border-radius: 4px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  text-align: center;
+  padding: 1rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
 }
 
 .alert-error {
-  background-color: rgba(255, 59, 48, 0.1);
-  border: 1px solid rgba(255, 59, 48, 0.3);
+  background-color: #281111;
+  border: 1px solid #ff3b30;
+  color: #ff7a78;
+}
+
+.error-text {
   color: #ff3b30;
+  font-size: 0.85rem;
 }
 
 .btn-submit {
   background-color: #d2fc00;
-  color: #111113;
   border: none;
-  padding: 1rem;
-  border-radius: 4px;
-  font-weight: 700;
-  font-size: 0.95rem;
+  color: #0b0b0c;
+  font-weight: 900;
+  letter-spacing: 0.08em;
   cursor: pointer;
-  letter-spacing: 0.05em;
-  transition: all 0.2s ease;
-  margin-top: 0.5rem;
+  padding: 1rem 1.25rem;
+  border-radius: 6px;
   text-transform: uppercase;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .btn-submit:hover:not(:disabled) {
-  background-color: #ffffff;
-  box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 30px rgba(210, 252, 0, 0.25);
 }
 
 .btn-submit:disabled {
-  opacity: 0.5;
+  opacity: 0.6;
   cursor: not-allowed;
 }
 </style>

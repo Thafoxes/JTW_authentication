@@ -57,12 +57,11 @@ $input = json_decode($rawInput, true);
 $userId = isset($input['userId']) ? trim($input['userId']) : '';
 $username = isset($input['username']) ? trim($input['username']) : '';
 $email = isset($input['email']) ? trim($input['email']) : '';
-$password = isset($input['password']) ? $input['password'] : '';
 $isMemberValid = isset($input['isMemberValid']) ? $input['isMemberValid'] : '';
 $role = isset($input['role']) ? $input['role'] : '';
 
 // Validation
-if (empty($userId) || empty($username) || empty($email) || empty($password) || $isMemberValid === '' || empty($role)) {
+if (empty($userId) || empty($username) || empty($email) || $isMemberValid === '' || empty($role)) {
     http_response_code(400);
     echo json_encode(["success" => false, "message" => "Please fill in all fields."]);
     exit();
@@ -116,9 +115,6 @@ try {
         $role = $currentUser['ROLE'];
         $isMemberValid = $currentUser['member_valid'];
     }
-
-    // Hash the password
-    $passwordHash = password_hash($password, PASSWORD_BCRYPT);
 
     $stmt = $db->prepare("CALL update_user(?,?,?,?,?)");
     $stmt->execute([$username, $email, $isMemberValid, $role, $userId]);

@@ -189,3 +189,7 @@ The layout employs a high-contrast dark theme centered around fitness and gym ae
 ## Test login with the database
 email : developer@example.com
 password: developer
+
+normal user
+email: user@example.com
+password: user

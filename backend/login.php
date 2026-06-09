@@ -55,6 +55,12 @@ try {
         echo json_encode(["success" => false, "message" => "Your account has been blacklisted."]);
         exit();
     }
+
+    if ((int)$user['member_valid'] !== 1) {
+        http_response_code(403); // Forbidden
+        echo json_encode(["success" => false, "message" => "Your membership is not currently active."]);
+        exit();
+    }
     
     // Generate JWT payload
     $issuedAt = time();
@@ -64,6 +70,7 @@ try {
         "username" => $user['username'],
         "email" => $user['email'],
         "role" => $user['ROLE'],
+        "member_valid" => (int) $user['member_valid'],
         "iat" => $issuedAt,
         "exp" => $expirationTime
     ];
