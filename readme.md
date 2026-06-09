@@ -186,3 +186,6 @@ The layout employs a high-contrast dark theme centered around fitness and gym ae
 - **Responsive Flex Containers**: Layout elements align vertically using flex models with clean padding and margin standards.
 - **Micro-interactions**: Links and buttons utilize transition transforms and shadows to deliver modern feed-back behaviors when clicked or hovered over.
 
+## Test login with the database
+email : developer@example.com
+password: developer
