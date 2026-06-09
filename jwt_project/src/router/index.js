@@ -20,6 +20,11 @@ const router = createRouter({
       component: () => import('../views/SignupView.vue'),
     },
     {
+      path: '/jwt-explorer',
+      name: 'jwt-explorer',
+      component: () => import('../views/JwtExplorerView.vue'),
+    },
+    {
       path: '/dashboard',
       redirect: () => {
         const userJson = localStorage.getItem('user')

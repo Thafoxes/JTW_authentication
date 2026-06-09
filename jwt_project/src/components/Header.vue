@@ -48,6 +48,7 @@ const logout = () => {
       </p>
       <nav class="navigation">
         <RouterLink to="/" class="nav-link" active-class="active">HOME</RouterLink>
+        <RouterLink to="/jwt-explorer" class="nav-link" active-class="active">JWT EXPLORER</RouterLink>
         <RouterLink v-if="isLoggedIn" to="/dashboard" class="nav-link" active-class="active">DASHBOARD</RouterLink>
         <RouterLink v-if="!isLoggedIn" to="/login" class="nav-link" active-class="active">LOGIN</RouterLink>
         <RouterLink v-if="!isLoggedIn" to="/signup" class="nav-link" active-class="active">SIGN UP</RouterLink>
