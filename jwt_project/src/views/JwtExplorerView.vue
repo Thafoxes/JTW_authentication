@@ -13,6 +13,7 @@ const encodedToken = ref('')
 const secretKey = ref('JTW_test')
 const headerJsonString = ref('')
 const payloadJsonString = ref('')
+const autoSign = ref(true)
 
 // Validation state
 const validationStatus = ref(null) // 'valid', 'invalid'
@@ -74,11 +75,21 @@ const handleDecodedChanged = async () => {
   try {
     const header = JSON.parse(headerJsonString.value)
     const payload = JSON.parse(payloadJsonString.value)
-    const signed = await signToken(header, payload, secretKey.value)
-    encodedToken.value = signed
+    
+    if (autoSign.value) {
+      const signed = await signToken(header, payload, secretKey.value)
+      encodedToken.value = signed
+    } else {
+      // Tampering mode: base64URL encode payload/header but keep existing signature
+      const base64Header = base64UrlEncode(JSON.stringify(header))
+      const base64Payload = base64UrlEncode(JSON.stringify(payload))
+      const parts = encodedToken.value.split('.')
+      const signature = parts[2] || ''
+      encodedToken.value = `${base64Header}.${base64Payload}.${signature}`
+    }
     validationStatus.value = null
   } catch (err) {
-    console.error('Signing failed:', err)
+    console.error('Signing/Encoding failed:', err)
   } finally {
     isSyncing = false
   }
@@ -286,7 +297,7 @@ const corruptSignaturePart = () => {
 }
 
 onMounted(() => {
-  loadDefaultToken()
+  loadSessionToken()
 })
 </script>
 
@@ -390,6 +401,17 @@ onMounted(() => {
             </p>
           </div>
 
+          <!-- Auto sign toggle -->
+          <div class="checkbox-group">
+            <label class="checkbox-label">
+              <input type="checkbox" v-model="autoSign" />
+              <span>Auto-sign changes (re-calculate signature when editors change)</span>
+            </label>
+            <p class="input-hint warn-text" v-if="!autoSign">
+              ⚠️ Tamper Mode active: Editing the payload JSON will update the token payload block but retain the original signature block.
+            </p>
+          </div>
+
           <!-- Simulation Triggers (Security Attack) -->
           <div class="simulation-triggers">
             <div class="section-divider">
@@ -405,8 +427,8 @@ onMounted(() => {
               <button @click="corruptSignaturePart" class="btn-warning btn-corrupt">
                 💥 CORRUPT SIGNATURE
               </button>
-              <button @click="loadDefaultToken" class="btn-secondary">
-                🔄 RESET PLAYGROUND
+              <button @click="loadSessionToken" class="btn-secondary">
+                🔄 RESET PLAYGROUND TO ORIGINAL LOGIN SESSION
               </button>
             </div>
           </div>
@@ -1068,5 +1090,30 @@ onMounted(() => {
   font-size: 0.85rem;
   color: #a0a0a5;
   line-height: 1.4;
+}
+
+.checkbox-group {
+  margin-bottom: 1.25rem;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #d2fc00;
+  cursor: pointer;
+}
+
+.warn-text {
+  color: #ff9800 !important;
 }
 </style>
