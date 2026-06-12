@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/multi-word-component-names -->
 <script setup>
 import { ref, watch } from 'vue'
 import { RouterLink, useRouter, useRoute } from 'vue-router'
