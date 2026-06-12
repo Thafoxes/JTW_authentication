@@ -1,7 +1,8 @@
 <script setup>
-import { RouterLink, RouterView } from 'vue-router'
+import { RouterView } from 'vue-router'
 import HeaderNav from './components/Header.vue'
 </script>
+
 
 <template>
   <div class="app-layout">

@@ -5,6 +5,30 @@ export const backendBaseUrl = (hostname => {
     : '/backend';
 })(window.location.hostname);
 
+export function isTokenExpired(token) {
+  if (!token) return true;
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return true;
+    const base64Url = parts[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    const payload = JSON.parse(jsonPayload);
+    if (!payload || !payload.exp) {
+      return true;
+    }
+    const currentTime = Math.floor(Date.now() / 1000);
+    return payload.exp < currentTime;
+  } catch {
+    return true;
+  }
+}
+
 export async function authFetch(endpoint, options = {}) {
   const token = localStorage.getItem('jwt_token');
   const headers = {
@@ -26,8 +50,9 @@ export async function authFetch(endpoint, options = {}) {
     payload = await response.json();
   } catch (err) {
     console.error('Failed to parse JSON response from', endpoint, err);
-    throw new Error('Invalid JSON response from server.');
+    throw new Error('Invalid JSON response from server.', { cause: err });
   }
+
 
   if (!response.ok) {
     const message = payload?.message || `Request failed with status ${response.status}`;
