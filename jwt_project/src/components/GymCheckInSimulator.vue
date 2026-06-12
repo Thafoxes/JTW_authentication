@@ -12,6 +12,7 @@ const props = defineProps({
 const emit = defineEmits(['status-updated'])
 
 const qrToken = ref(null)
+const lastTokenUsed = ref(null)
 const errorMsg = ref('')
 const successMsg = ref('')
 const generateLoading = ref(false)
@@ -28,6 +29,7 @@ const generatePass = async () => {
     const data = await authFetch('/api/checkin/generate.php', { method: 'POST' })
     if (data.success && data.token) {
       qrToken.value = data.token
+      lastTokenUsed.value = data.token
     } else {
       errorMsg.value = data.message || 'Failed to generate check-in pass.'
     }
@@ -64,6 +66,29 @@ const simulateScan = async () => {
   }
 }
 
+const simulateAbuseScan = async () => {
+  if (!lastTokenUsed.value) return
+  errorMsg.value = ''
+  successMsg.value = ''
+  scanLoading.value = true
+  try {
+    const data = await authFetch('/api/checkin/verify.php', {
+      method: 'POST',
+      body: JSON.stringify({ token: lastTokenUsed.value })
+    })
+    if (data.success) {
+      successMsg.value = data.message || 'Abuse check-in unexpectedly succeeded!'
+    } else {
+      errorMsg.value = data.message || 'Check-in failed.'
+    }
+  } catch (err) {
+    console.error('Abuse check-in failed:', err)
+    errorMsg.value = err.message || 'Check-in failed.'
+  } finally {
+    scanLoading.value = false
+  }
+}
+
 const checkOut = async () => {
   errorMsg.value = ''
   successMsg.value = ''
@@ -73,6 +98,7 @@ const checkOut = async () => {
     if (data.success) {
       successMsg.value = data.message || 'Check-out successful. See you next time!'
       qrToken.value = null // Clear references
+      lastTokenUsed.value = null
       emit('status-updated', 'OUTSIDE')
     } else {
       errorMsg.value = data.message || 'Check-out failed.'
@@ -166,6 +192,9 @@ const checkOut = async () => {
                 />
                 <div class="scanner-laser"></div>
               </div>
+              <div class="token-value-display" :title="qrToken">
+                <code>{{ qrToken }}</code>
+              </div>
               <span class="pass-validity">Pass valid for 5 min</span>
             </div>
           </div>
@@ -181,6 +210,19 @@ const checkOut = async () => {
           <span v-if="scanLoading">SCANNING...</span>
           <span v-else>SIMULATE TURNSTILE SCAN 🔓</span>
         </button>
+
+        <!-- Abuse Simulation Trigger -->
+        <div v-if="isInside && lastTokenUsed" class="abuse-simulator">
+          <button 
+            @click="simulateAbuseScan" 
+            class="btn-scan btn-abuse" 
+            :disabled="scanLoading"
+          >
+            <span v-if="scanLoading">TESTING SCAN...</span>
+            <span v-else>TRY CHECK IN AGAIN 🚨</span>
+          </button>
+          <p class="abuse-caption">Simulate someone trying to abuse this pass a second time</p>
+        </div>
       </div>
 
       <!-- Helper info if idle -->
@@ -604,5 +646,49 @@ const checkOut = async () => {
   background-color: rgba(138, 222, 43, 0.1);
   border: 1px solid #8ade2b;
   color: #dff7b8;
+}
+
+.token-value-display {
+  font-size: 0.52rem;
+  color: #707075;
+  background-color: #0c0c0e;
+  padding: 0.35rem 0.5rem;
+  border-radius: 4px;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-top: 0.6rem;
+  border: 1px solid #222225;
+  font-family: monospace;
+  box-sizing: border-box;
+}
+
+.abuse-simulator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+  width: 100%;
+}
+
+.btn-abuse {
+  border-color: #ff3b30 !important;
+  color: #ff3b30 !important;
+}
+
+.btn-abuse:hover:not(:disabled) {
+  background-color: #ff3b30 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 10px rgba(255, 59, 48, 0.4) !important;
+}
+
+.abuse-caption {
+  font-size: 0.7rem;
+  color: #707075;
+  text-align: center;
+  margin: 0;
+  max-width: 200px;
 }
 </style>
