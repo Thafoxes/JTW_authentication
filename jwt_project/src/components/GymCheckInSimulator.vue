@@ -41,8 +41,55 @@ const generatePass = async () => {
   }
 }
 
+const debugJwt = (token) => {
+  if (!token) return
+  try {
+    const parts = token.split('.')
+    if (parts.length !== 3) {
+      console.log('❌ Invalid JWT format. Expected 3 dot-separated segments.')
+      return
+    }
+
+    const [headerB64, payloadB64, signatureB64] = parts
+
+    const decodePart = (b64) => {
+      const normalized = b64.replace(/-/g, '+').replace(/_/g, '/')
+      return JSON.parse(decodeURIComponent(
+        atob(normalized)
+          .split('')
+          .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      ))
+    }
+
+    const header = decodePart(headerB64)
+    const payload = decodePart(payloadB64)
+
+    console.log('--- 🔍 JWT Validation Simulator Debug ---')
+    console.log('1. Raw Pass Token:', token)
+    console.log('2. Decoded Header:', header)
+    console.log('3. Decoded Payload:', payload)
+    console.log('   - Gym Member (sub):', payload.sub)
+    console.log('   - Unique Pass ID (jti):', payload.jti)
+    console.log('   - Issued At (iat):', new Date(payload.iat * 1000).toLocaleString())
+    console.log('   - Expiry Time (exp):', new Date(payload.exp * 1000).toLocaleString())
+    
+    const timeRemaining = payload.exp - Math.floor(Date.now() / 1000)
+    if (timeRemaining > 0) {
+      console.log(`✅ Token is active. Expires in ${timeRemaining} seconds.`)
+    } else {
+      console.log(`❌ Token is EXPIRED by ${Math.abs(timeRemaining)} seconds.`)
+    }
+    console.log('4. Signature Segment (Base64Url):', signatureB64)
+    console.log('-----------------------------------------')
+  } catch (e) {
+    console.error('Failed to parse and debug JWT:', e)
+  }
+}
+
 const simulateScan = async () => {
   if (!qrToken.value) return
+  debugJwt(qrToken.value)
   errorMsg.value = ''
   successMsg.value = ''
   scanLoading.value = true
@@ -68,6 +115,8 @@ const simulateScan = async () => {
 
 const simulateAbuseScan = async () => {
   if (!lastTokenUsed.value) return
+  console.log('🚨 Attempting abuse check-in with previously used token...')
+  debugJwt(lastTokenUsed.value)
   errorMsg.value = ''
   successMsg.value = ''
   scanLoading.value = true
@@ -88,6 +137,7 @@ const simulateAbuseScan = async () => {
     scanLoading.value = false
   }
 }
+
 
 const checkOut = async () => {
   errorMsg.value = ''
