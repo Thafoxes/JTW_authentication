@@ -2,6 +2,8 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { authFetch } from '../utils/api.js'
+import GymCheckInSimulator from '../components/GymCheckInSimulator.vue'
+
 
 const router = useRouter()
 const user = ref(null)
@@ -50,8 +52,12 @@ onMounted(loadProfile)
           <li><strong>Role:</strong> {{ user.role }}</li>
           <li><strong>Joined:</strong> {{ user.date_joined }}</li>
           <li><strong>Member valid:</strong> {{ user.member_valid ? 'Yes' : 'No' }}</li>
+          <li><strong>Gym Location Status:</strong> <span class="status-value">{{ user.gym_status || 'OUTSIDE' }}</span></li>
         </ul>
       </div>
+
+      <GymCheckInSimulator :user="user" @status-updated="(status) => user.gym_status = status" />
+
 
       <div class="card admin-card">
         <h2>Protected Admin Area</h2>
