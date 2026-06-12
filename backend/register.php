@@ -45,7 +45,7 @@ try {
     $db = Database::getConnection();
     
     // check if email already exists
-    $stmt = $db->prepare("SELECT user_id FROM user WHERE email = ? LIMIT 1");
+    $stmt = $db->prepare("SELECT user_id FROM users WHERE email = ? LIMIT 1");
     $stmt->execute([$email]);
     if ($stmt->fetch()) {
         http_response_code(409); // Conflict
@@ -54,7 +54,7 @@ try {
     }
 
     // check if username already exists
-    $stmt = $db->prepare("SELECT user_id FROM user WHERE username = ? LIMIT 1");
+    $stmt = $db->prepare("SELECT user_id FROM users WHERE username = ? LIMIT 1");
     $stmt->execute([$username]);
     if ($stmt->fetch()) {
         http_response_code(409); // conflict
@@ -66,7 +66,7 @@ try {
     $passwordHash = password_hash($password, PASSWORD_BCRYPT);
     
     // insert new user
-    $stmt = $db->prepare("INSERT INTO user (username, email, password_hash, role, member_valid) VALUES (?, ?, ?, 'member', 1)");
+    $stmt = $db->prepare("INSERT INTO users (username, email, password_hash, role, member_valid) VALUES (?, ?, ?, 'member', 1)");
     $stmt->execute([$username, $email, $passwordHash]);
     
     http_response_code(201); // created

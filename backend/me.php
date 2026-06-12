@@ -39,7 +39,7 @@ try {
     
     // Fetch fresh database record to ensure user still exists and role hasn't changed
     $db = Database::getConnection();
-    $stmt = $db->prepare("SELECT user_id, username, email, ROLE, member_valid, date_joined FROM user WHERE user_id = ? LIMIT 1");
+    $stmt = $db->prepare("SELECT user_id, username, email, ROLE, member_valid, date_joined FROM users WHERE user_id = ? LIMIT 1");
     $stmt->execute([$payload['user_id']]);
     $user = $stmt->fetch();
     

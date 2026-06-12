@@ -100,7 +100,7 @@ try {
     $db = Database::getConnection();
 
     // fetch user current details to prevent privilege escalation
-    $checkStmt = $db->prepare("SELECT ROLE, member_valid FROM user WHERE user_id = ? LIMIT 1");
+    $checkStmt = $db->prepare("SELECT ROLE, member_valid FROM users WHERE user_id = ? LIMIT 1");
     $checkStmt->execute([$userId]);
     $currentUser = $checkStmt->fetch();
     

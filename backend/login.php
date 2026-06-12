@@ -32,7 +32,7 @@ try {
     $db = Database::getConnection();
     
     // Fetch user by email
-    $stmt = $db->prepare("SELECT user_id, username, email, password_hash, ROLE, member_valid FROM user WHERE email = ? LIMIT 1");
+    $stmt = $db->prepare("SELECT user_id, username, email, password_hash, ROLE, member_valid FROM users WHERE email = ? LIMIT 1");
     $stmt->execute([$email]);
     $user = $stmt->fetch();
     
