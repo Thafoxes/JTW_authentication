@@ -164,6 +164,9 @@ enum Membership: string {
 | **Database Protection** | Parameterized bindings (Prepared Statements) | Eradicates SQL injection possibilities entirely. |
 | **Privilege Escalation Guard** | Strict role assertions before running `CALL update_user()` | Prevents users from upgrading their roles or statuses without authorization. |
 
+> [!NOTE]
+> **CSRF Protection**: We do not implement CSRF protection in this project because we initially want to display how this project works by looking at how the token flow behaves. Additionally, since the application authenticates requests strictly via JWTs stored in `localStorage` and sent via custom `Authorization: Bearer <token>` headers (rather than session cookies), standard browser-based CSRF attacks are naturally mitigated.
+
 ---
 
 ## Frontend Design System

@@ -7,6 +7,11 @@ require_once __DIR__ . '/helpers/jwt.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
+// NOTE: CSRF protection is not implemented in this project because we initially want to
+// display how this project works by looking at how the token flow behaves.
+// Additionally, since this API uses JWTs stored in localStorage and passed via custom
+// Authorization headers (rather than cookies), standard browser-based CSRF is mitigated.
+
 // Only allow POST requests
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);

@@ -97,3 +97,10 @@ define('DB_PASS', '');
 define('DB_NAME', 'jwt_dbms');
 define('JWT_SECRET', 'your_super_secret_jwt_key_change_me_in_production_1234567890');
 ```
+
+---
+
+## Security Notes
+
+### CSRF Protection
+We do not implement CSRF protection in this project because we initially want to display how this project works by looking at how the token flow behaves. Additionally, since the application authenticates requests strictly via JWTs stored in `localStorage` and sent via custom `Authorization: Bearer <token>` headers (rather than session cookies), standard browser-based CSRF attacks are naturally mitigated.
